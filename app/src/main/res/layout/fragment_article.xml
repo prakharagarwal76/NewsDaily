@@ -1,0 +1,36 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".GeneralNewsFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linlay_article"
+        android:elevation="6dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sourceTextView"
+            android:textSize="25sp"
+            android:layout_weight="1"
+            android:padding="10dp"/>
+        <Spinner
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:padding="10dp"
+            android:id="@+id/spinner"
+            android:layout_height="wrap_content"></Spinner>
+
+    </LinearLayout>
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_below="@+id/linlay_article"
+        android:layout_height="match_parent"
+        android:id="@+id/article_recyclerview">
+
+    </android.support.v7.widget.RecyclerView>
+</RelativeLayout>
