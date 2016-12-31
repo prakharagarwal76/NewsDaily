@@ -5,6 +5,8 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import com.example.prakharagarwal.newsdaily.R;
+
 /**
  * Created by prakharagarwal on 29/12/16.
  */
@@ -13,7 +15,7 @@ public class NewsContract {
     // relationship between a domain name and its website.  A convenient string to use for the
     // content authority is the package name for the app, which is guaranteed to be unique on the
     // device.
-    public static final String CONTENT_AUTHORITY = "com.example.prekshasingla.news.app";
+    public static final String CONTENT_AUTHORITY = "com.example.prakharagarwal.newsdaily.app";
 
     // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
     // the content provider.
