@@ -44,7 +44,8 @@ public class DetailActivityFragment extends Fragment {
             link.setText(arguments.getString("url"));
             Picasso.with(getContext()).load(arguments.getString("urlToImage")).into(imageView);
         }else {
-
+            tView.setVisibility(View.INVISIBLE);
+            rel.setVisibility(View.VISIBLE);
             Intent intent = getActivity().getIntent();
             Picasso.with(getContext()).load(intent.getStringExtra("urlToImage")).into(imageView);
             headlineView.setText(intent.getStringExtra("headline"));
