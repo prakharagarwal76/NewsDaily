@@ -1,0 +1,62 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    tools:context="com.example.prakharagarwal.newsdaily.MainActivity"
+    tools:showIn="@layout/activity_detail">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/detail_emptyText"
+        android:text="@string/detail_emptyText"
+        android:gravity="center"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        android:id="@+id/detail_rellayout">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:id="@+id/detail_image"
+        android:scaleType="fitXY"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/detail_headline"
+        android:textSize="25sp"
+        android:padding="10dp"
+        android:layout_below="@+id/detail_image"
+        style="@style/Base.TextAppearance.AppCompat.Headline"
+        android:textStyle="bold"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:paddingTop="10dp"
+        style="@style/Base.TextAppearance.AppCompat.Body2"
+        android:layout_below="@+id/detail_headline"
+        android:textSize="20sp"
+        android:id="@+id/detail_desc"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/detail_fullstory"
+        android:padding="10dp"
+        android:text="Full Story"
+
+        style="@style/Base.TextAppearance.AppCompat.Body2"
+        android:textSize="20sp"
+        android:clickable="true"
+        android:layout_alignParentBottom="true"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_toRightOf="@+id/detail_fullstory"
+        android:id="@+id/detail_url"
+        android:padding="10dp"
+        android:autoLink="web"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content" />
+    </RelativeLayout>
+</FrameLayout>

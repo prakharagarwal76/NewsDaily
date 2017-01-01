@@ -111,6 +111,7 @@ public class GeneralNewsFragment extends Fragment implements LoaderManager.Loade
         // attaching data adapter to spinner
         spinner.setAdapter(dataAdapter);
         spinner.setSelection(pos);
+
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

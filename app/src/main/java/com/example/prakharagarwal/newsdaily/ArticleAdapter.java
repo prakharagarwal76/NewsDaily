@@ -14,7 +14,7 @@ import com.squareup.picasso.Picasso;
 /**
  * Created by prakharagarwal on 29/12/16.
  */
-public class ArticleAdapter  extends RecyclerView.Adapter<ArticleAdapter.ArticleAdapterViewHolder> {
+public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleAdapterViewHolder> {
 
     private Cursor mCursor;
     final private Context mContext;
@@ -22,6 +22,9 @@ public class ArticleAdapter  extends RecyclerView.Adapter<ArticleAdapter.Article
     public ArticleAdapter(Context context,Cursor cursor){
         mContext=context;
         mCursor=cursor;
+    }
+    public interface Callback{
+        void onItemSelected(Cursor cursor,int position);
     }
 
     @Override
@@ -42,6 +45,7 @@ public class ArticleAdapter  extends RecyclerView.Adapter<ArticleAdapter.Article
         Picasso.with(mContext).load(mCursor.getString(4)).into(holder.I1);
         holder.t2.setText(mCursor.getString(1));
 
+
     }
 
     @Override
@@ -50,7 +54,7 @@ public class ArticleAdapter  extends RecyclerView.Adapter<ArticleAdapter.Article
     }
 
 
-    public class ArticleAdapterViewHolder extends RecyclerView.ViewHolder  {
+    public class ArticleAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final ImageView I1;
         public final TextView t2;
 
@@ -58,10 +62,19 @@ public class ArticleAdapter  extends RecyclerView.Adapter<ArticleAdapter.Article
             super(view);
             I1=(ImageView)view.findViewById(R.id.articleThumbnail);
             t2=(TextView)view.findViewById(R.id.article_text);
+            view.setOnClickListener(this);
 
         }
 
 
+        @Override
+        public void onClick(View v) {
+            int adapterPosition = getAdapterPosition();
+            mCursor.moveToPosition(adapterPosition);
+            ((Callback) mContext).onItemSelected(mCursor,adapterPosition);
+
+
+        }
     }
 
 }
