@@ -7,6 +7,7 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
@@ -39,6 +40,9 @@ public class NewsSyncAdapter  extends AbstractThreadedSyncAdapter {
 
     public final String LOG_TAG = NewsSyncAdapter.class.getSimpleName();
     ContentResolver mContentResolver;
+
+    public static final String ACTION_DATA_UPDATED =
+            "com.example.prakharagarwal.newsdaily.app.ACTION_DATA_UPDATED";
 
     public static final int SYNC_INTERVAL = 60;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
@@ -228,72 +232,73 @@ public class NewsSyncAdapter  extends AbstractThreadedSyncAdapter {
 
         }
         protected void onPostExecute(String result) {
-            // Weather information.  Each day's forecast info is an element of the "list" array.
-            final String OWM_ARTICLES = "articles";
-            final String OWM_SOURCE = "source";
-            final String OWM_TITLE = "title";
-            final String OWM_DESCRIPTION = "description";
-            final String OWM_URL = "url";
-            final String OWM_URL_TO_IMAGE = "urlToImage";
+            if(result!=null) {
+                final String OWM_ARTICLES = "articles";
+                final String OWM_SOURCE = "source";
+                final String OWM_TITLE = "title";
+                final String OWM_DESCRIPTION = "description";
+                final String OWM_URL = "url";
+                final String OWM_URL_TO_IMAGE = "urlToImage";
 
-            try {
-                JSONObject forecastJson = new JSONObject(result);
-                Context context = getContext();
-
-
-                String mSource=forecastJson.getString(OWM_SOURCE);
-                JSONArray newsArray = forecastJson.getJSONArray(OWM_ARTICLES);
+                try {
+                    JSONObject forecastJson = new JSONObject(result);
+                    Context context = getContext();
 
 
-                Vector<ContentValues> cVVector = new Vector<ContentValues>(newsArray.length());
-
-                for(int i = 0; i < newsArray.length(); i++) {
-                    // These are the values that will be collected.
-                    String title;
-                    String description;
-                    String url;
-                    String urlToImage;
-
-                    // Get the JSON object representing the day
-                    JSONObject article = newsArray.getJSONObject(i);
-
-                    // Cheating to convert this to UTC time, which is what we want anyhow
+                    String mSource = forecastJson.getString(OWM_SOURCE);
+                    JSONArray newsArray = forecastJson.getJSONArray(OWM_ARTICLES);
 
 
-                    title = article.getString(OWM_TITLE);
-                    description = article.getString(OWM_DESCRIPTION);
-                    url = article.getString(OWM_URL);
-                    urlToImage = article.getString(OWM_URL_TO_IMAGE);
+                    Vector<ContentValues> cVVector = new Vector<ContentValues>(newsArray.length());
+
+                    for (int i = 0; i < newsArray.length(); i++) {
+                        // These are the values that will be collected.
+                        String title;
+                        String description;
+                        String url;
+                        String urlToImage;
+
+                        // Get the JSON object representing the day
+                        JSONObject article = newsArray.getJSONObject(i);
+
+                        // Cheating to convert this to UTC time, which is what we want anyhow
 
 
-
-                    ContentValues NewsValues = new ContentValues();
-
-                    NewsValues.put(NewsContract.ArticleEntry.COLUMN_TITLE, title);
-                    NewsValues.put(NewsContract.ArticleEntry.COLUMN_DESCRIPTION, description);
-                    NewsValues.put(NewsContract.ArticleEntry.COLUMN_URL,url);
-                    NewsValues.put(NewsContract.ArticleEntry.COLUMN_URL_TO_IMAGE, urlToImage);
-                    NewsValues.put(NewsContract.ArticleEntry.COLUMN_CATEGORY,CATEGORY);
+                        title = article.getString(OWM_TITLE);
+                        description = article.getString(OWM_DESCRIPTION);
+                        url = article.getString(OWM_URL);
+                        urlToImage = article.getString(OWM_URL_TO_IMAGE);
 
 
-                    cVVector.add(NewsValues);
+                        ContentValues NewsValues = new ContentValues();
+
+                        NewsValues.put(NewsContract.ArticleEntry.COLUMN_TITLE, title);
+                        NewsValues.put(NewsContract.ArticleEntry.COLUMN_DESCRIPTION, description);
+                        NewsValues.put(NewsContract.ArticleEntry.COLUMN_URL, url);
+                        NewsValues.put(NewsContract.ArticleEntry.COLUMN_URL_TO_IMAGE, urlToImage);
+                        NewsValues.put(NewsContract.ArticleEntry.COLUMN_CATEGORY, CATEGORY);
+
+
+                        cVVector.add(NewsValues);
+                    }
+
+
+                    if (cVVector.size() > 0) {
+                        ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                        cVVector.toArray(cvArray);
+                        getContext().getContentResolver().delete(NewsContract.ArticleEntry.CONTENT_URI, "category='" + CATEGORY + "'", null);
+                        getContext().getContentResolver().bulkInsert(NewsContract.ArticleEntry.CONTENT_URI, cvArray);
+
+                    }
+                    Log.d(LOG_TAG, "Sync Complete. " + cVVector.size() + " Inserted");
+                    // udating widgets......
+                    updateWidgets();
+
+                } catch (JSONException e) {
+                    Log.e(LOG_TAG, e.getMessage(), e);
+                    e.printStackTrace();
+
                 }
-
-
-                if ( cVVector.size() > 0 ) {
-                    ContentValues[] cvArray = new ContentValues[cVVector.size()];
-                    cVVector.toArray(cvArray);
-                    getContext().getContentResolver().delete(NewsContract.ArticleEntry.CONTENT_URI,"category='"+CATEGORY+"'",null);
-                    getContext().getContentResolver().bulkInsert(NewsContract.ArticleEntry.CONTENT_URI, cvArray);
-
-                }
-                Log.d(LOG_TAG, "Sync Complete. " + cVVector.size() + " Inserted");
-
-
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
-
             }
 
         }
@@ -351,15 +356,9 @@ public class NewsSyncAdapter  extends AbstractThreadedSyncAdapter {
                 forecastJsonStr = buffer.toString();
                 Log.d("Data",forecastJsonStr);
                 return forecastJsonStr;
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attempting
-                // to parse it.
-                //setLocationStatus(getContext(), LOCATION_STATUS_SERVER_DOWN);
             } catch (Exception e) {
-                Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
-                // setLocationStatus(getContext(), LOCATION_STATUS_SERVER_INVALID);
+                Log.e(LOG_TAG, "Error ", e);
+
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -376,73 +375,77 @@ public class NewsSyncAdapter  extends AbstractThreadedSyncAdapter {
         }
         protected void onPostExecute(String result) {
 
+            if (result != null) {
+                final String OWM_RESULTS = "sources";
+                final String OWM_SOURCE_ID = "id";
+                final String OWM_SOURCE_NAME = "name";
 
-            final String OWM_RESULTS = "sources";
-            final String OWM_SOURCE_ID = "id";
-            final String OWM_SOURCE_NAME = "name";
+                final String OWM_CATEGORY = "category";
 
-            final String OWM_CATEGORY = "category";
-
-            try {
-                JSONObject forecastJson = new JSONObject(result);
-                JSONArray newsArray = forecastJson.getJSONArray(OWM_RESULTS);
-
-
-                Vector<ContentValues> cVVector = new Vector<ContentValues>(newsArray.length());
-
-                for(int i = 0; i < newsArray.length(); i++) {
-                    // These are the values that will be collected.
-                    String name;
-                    String id;
-                    String category;
+                try {
+                    JSONObject forecastJson = new JSONObject(result);
+                    JSONArray newsArray = forecastJson.getJSONArray(OWM_RESULTS);
 
 
-                    // Get the JSON object representing the day
-                    JSONObject article = newsArray.getJSONObject(i);
+                    Vector<ContentValues> cVVector = new Vector<ContentValues>(newsArray.length());
 
-                    // Cheating to convert this to UTC time, which is what we want anyhow
-
-
-                    name = article.getString(OWM_SOURCE_NAME);
-                    id = article.getString(OWM_SOURCE_ID);
-                    category = article.getString(OWM_CATEGORY);
+                    for (int i = 0; i < newsArray.length(); i++) {
+                        // These are the values that will be collected.
+                        String name;
+                        String id;
+                        String category;
 
 
+                        // Get the JSON object representing the day
+                        JSONObject article = newsArray.getJSONObject(i);
+
+                        // Cheating to convert this to UTC time, which is what we want anyhow
 
 
-                    ContentValues NewsValues = new ContentValues();
-
-                    NewsValues.put(NewsContract.SourceEntry.COLUMN_SOURCE_NAME, name);
-                    NewsValues.put(NewsContract.SourceEntry.COLUMN_SOURCE_ID, id);
-                    NewsValues.put(NewsContract.SourceEntry.COLUMN_SOURCE_CATEGORY,category);
+                        name = article.getString(OWM_SOURCE_NAME);
+                        id = article.getString(OWM_SOURCE_ID);
+                        category = article.getString(OWM_CATEGORY);
 
 
+                        ContentValues NewsValues = new ContentValues();
 
-                    cVVector.add(NewsValues);
+                        NewsValues.put(NewsContract.SourceEntry.COLUMN_SOURCE_NAME, name);
+                        NewsValues.put(NewsContract.SourceEntry.COLUMN_SOURCE_ID, id);
+                        NewsValues.put(NewsContract.SourceEntry.COLUMN_SOURCE_CATEGORY, category);
+
+
+                        cVVector.add(NewsValues);
+                    }
+
+
+                    if (cVVector.size() > 0) {
+                        ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                        cVVector.toArray(cvArray);
+                        getContext().getContentResolver().delete(NewsContract.SourceEntry.CONTENT_URI, null, null);
+                        getContext().getContentResolver().bulkInsert(NewsContract.SourceEntry.CONTENT_URI, cvArray);
+
+                    }
+                    Log.d(LOG_TAG, "Source Sync Complete. " + cVVector.size() + " Inserted");
+
+
+                } catch (JSONException e) {
+                    Log.e(LOG_TAG, e.getMessage(), e);
+                    e.printStackTrace();
+
                 }
-
-
-                if ( cVVector.size() > 0 ) {
-                    ContentValues[] cvArray = new ContentValues[cVVector.size()];
-                    cVVector.toArray(cvArray);
-                    getContext().getContentResolver().delete(NewsContract.SourceEntry.CONTENT_URI,null,null);
-                    getContext().getContentResolver().bulkInsert(NewsContract.SourceEntry.CONTENT_URI, cvArray);
-
-                }
-                Log.d(LOG_TAG, "Source Sync Complete. " + cVVector.size() + " Inserted");
-
-
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
 
             }
-
         }
 
 
 
     }
-
+    private void updateWidgets() {
+        Context context = getContext();
+        // Setting the package ensures that only components in our app will receive the broadcast
+        Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
+                .setPackage(context.getPackageName());
+        context.sendBroadcast(dataUpdatedIntent);
+    }
 
 }

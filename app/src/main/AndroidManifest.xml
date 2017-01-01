@@ -54,6 +54,24 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
+        <receiver
+            android:name=".widget.WidgetProvider"
+            android:enabled="@bool/widget_enabled"
+            android:label="@string/title_widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.example.prakharagarwal.newsdaily.app.ACTION_DATA_UPDATED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget" />
+        </receiver>
+        <service
+            android:name=".widget.WidgetRemoteViewsService"
+            android:enabled="@bool/widget_enabled"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
 
         <activity
             android:name=".DetailActivity"
