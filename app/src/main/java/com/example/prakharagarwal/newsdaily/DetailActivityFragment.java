@@ -35,15 +35,16 @@ public class DetailActivityFragment extends Fragment {
         RelativeLayout rel=(RelativeLayout)rootView.findViewById(R.id.detail_rellayout);
         TextView tView=(TextView)rootView.findViewById(R.id.detail_emptyText);
         Bundle arguments=getArguments();
-
-        if(arguments!=null){
+        tView.setVisibility(View.VISIBLE);
+        rel.setVisibility(View.INVISIBLE);
+        if(arguments.getString("desc")!=null){
             tView.setVisibility(View.INVISIBLE);
             rel.setVisibility(View.VISIBLE);
             headlineView.setText(arguments.getString("headline"));
             descView.setText(arguments.getString("desc"));
             link.setText(arguments.getString("url"));
             Picasso.with(getContext()).load(arguments.getString("urlToImage")).into(imageView);
-        }else {
+        }else if(getActivity().getIntent().getStringExtra("desc")!=null) {
             tView.setVisibility(View.INVISIBLE);
             rel.setVisibility(View.VISIBLE);
             Intent intent = getActivity().getIntent();

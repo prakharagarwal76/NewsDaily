@@ -14,6 +14,8 @@ import android.view.MenuItem;
 
 import com.example.prakharagarwal.newsdaily.data.NewsContract;
 import com.example.prakharagarwal.newsdaily.sync.NewsSyncAdapter;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 public class MainActivity extends AppCompatActivity implements ArticleAdapter.Callback {
     ViewPager viewPager;
@@ -32,7 +34,8 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
         Cursor c=getContentResolver().query(NewsContract.SourceEntry.CONTENT_URI,null,null,null,null);
         if(findViewById(R.id.detailContainer)!=null){
             mTwoPane=true;
-            if(savedInstanceState!=null){
+
+            if(savedInstanceState==null){
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.detailContainer, new DetailActivityFragment(), "DETAILFRAGMEN_TAG")
                         .commit();
@@ -45,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
             progress.setTitle("Loading");
             progress.setMessage("Please wait while the news is being loaded...");
             progress.show();
+
+            //if widget sends intent in tablet mode
 
             Runnable progressRunnable = new Runnable() {
 
@@ -77,6 +82,21 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
             tabLayout = (TabLayout) findViewById(R.id.tablayout);
             viewPager.setAdapter(viewPagerAdapter);
             tabLayout.setupWithViewPager(viewPager);
+
+            if(getIntent()!=null){
+                Intent intent= getIntent();
+                Bundle arguments=new Bundle();
+
+                arguments.putString("urlToImage",intent.getStringExtra("urlToImage"));
+                arguments.putString("headline",intent.getStringExtra("headline"));
+                arguments.putString("desc",intent.getStringExtra("desc"));
+                arguments.putString("url",intent.getStringExtra("url"));
+                DetailActivityFragment fragment=new DetailActivityFragment();
+                fragment.setArguments(arguments);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.detailContainer, fragment, "DetailActivityFragment.TAG")
+                        .commit();
+            }
         }
 
 

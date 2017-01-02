@@ -19,6 +19,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import com.example.prakharagarwal.newsdaily.data.NewsContract;
 import com.example.prakharagarwal.newsdaily.sync.NewsSyncAdapter;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,12 @@ public class BusinessNewsFragment extends Fragment implements LoaderManager.Load
         };
         //articleCursor=getActivity().getContentResolver().query(NewsContract.ArticleEntry.CONTENT_URI,PROJECTION,"category='general'",null,null);
         // adapter= new ArticleAdapter(getContext(),articleCursor);
+        AdView mAdView = (AdView)rootView.findViewById(R.id.adView);
+
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+        mAdView.loadAd(adRequest);
 
         mRecyclerView=(RecyclerView) rootView.findViewById(R.id.article_recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
