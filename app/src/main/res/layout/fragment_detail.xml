@@ -1,5 +1,10 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+
+<FrameLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
@@ -20,6 +25,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="250dp"
+        android:transitionName="@string/transitionphoto"
         android:id="@+id/detail_image"
         android:scaleType="fitXY"/>
     <TextView
@@ -46,7 +52,7 @@
         android:id="@+id/detail_fullstory"
         android:padding="10dp"
         android:text="Full Story"
-
+        android:layout_below="@+id/detail_desc"
         style="@style/Base.TextAppearance.AppCompat.Body2"
         android:textSize="20sp"
         android:clickable="true"
@@ -55,9 +61,11 @@
         android:layout_width="wrap_content"
         android:layout_toRightOf="@+id/detail_fullstory"
         android:id="@+id/detail_url"
+        android:layout_below="@+id/detail_desc"
         android:padding="10dp"
         android:autoLink="web"
         android:layout_alignParentBottom="true"
         android:layout_height="wrap_content" />
     </RelativeLayout>
 </FrameLayout>
+</ScrollView>

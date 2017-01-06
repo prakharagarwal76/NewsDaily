@@ -29,6 +29,8 @@ public class NewsContract {
     public static final String PATH_ARTICLE = "aricles";
     public static final String PATH_SOURCE = "source";
     public static final String PATH_SELECTED_SOURCE = "selected_source";
+    public static final String PATH_WEATHER = "weather";
+
 
 
 
@@ -110,5 +112,32 @@ public class NewsContract {
 
 
     }
+
+    public static final class WeatherEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_WEATHER).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
+
+        public static final String TABLE_NAME = "weather";
+
+
+        public static final String COLUMN_DATE = "date";
+        public static final String COLUMN_SHORT_DESC = "short_desc";
+        public static final String COLUMN_MIN_TEMP = "min";
+        public static final String COLUMN_MAX_TEMP = "max";
+        public static final String COLUMN_ICON = "icon";
+        public static final String COLUMN_LOCATION = "location";
+        public static final String COLUMN_POSTAL_CODE = "postal_code";
+
+        public static Uri buildWeatherUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
 }
 

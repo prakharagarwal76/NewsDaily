@@ -44,7 +44,7 @@ public class NewsSyncAdapter  extends AbstractThreadedSyncAdapter {
     public static final String ACTION_DATA_UPDATED =
             "com.example.prakharagarwal.newsdaily.app.ACTION_DATA_UPDATED";
 
-    public static final int SYNC_INTERVAL = 60;
+    public static final int SYNC_INTERVAL = 180*60;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
 
     public NewsSyncAdapter(Context context, boolean autoInitialize) {

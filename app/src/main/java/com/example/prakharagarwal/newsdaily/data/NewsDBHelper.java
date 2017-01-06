@@ -47,9 +47,21 @@ public class NewsDBHelper extends SQLiteOpenHelper {
 
                 ");";
 
+
+        final String SQL_CREATE_Weather_TABLE = "CREATE TABLE " + NewsContract.WeatherEntry.TABLE_NAME + " (" +
+                NewsContract.WeatherEntry.COLUMN_POSTAL_CODE + " REAL , " +
+                NewsContract.WeatherEntry.COLUMN_DATE+ " REAL , "+
+                NewsContract.WeatherEntry.COLUMN_ICON+" TEXT , "+
+                NewsContract.WeatherEntry.COLUMN_SHORT_DESC + " TEXT , " +
+                NewsContract.WeatherEntry.COLUMN_MIN_TEMP + " REAL , " +
+                NewsContract.WeatherEntry.COLUMN_MAX_TEMP + " REAL , " +
+                NewsContract.WeatherEntry.COLUMN_LOCATION + " TEXT );";
+
         sqLiteDatabase.execSQL(SQL_CREATE_ARTICLE_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_SOURCE_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_SELECTED_SOURCE_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_Weather_TABLE);
+
     }
 
     @Override
@@ -58,6 +70,8 @@ public class NewsDBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ArticleEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SourceEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SelectedSourceEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + NewsContract.WeatherEntry.TABLE_NAME);
+
         onCreate(sqLiteDatabase);
     }
 }

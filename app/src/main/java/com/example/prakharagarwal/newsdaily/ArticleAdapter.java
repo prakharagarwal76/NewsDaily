@@ -18,13 +18,15 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleA
 
     private Cursor mCursor;
     final private Context mContext;
+    ArticleAdapterViewHolder holder;
+
 
     public ArticleAdapter(Context context,Cursor cursor){
         mContext=context;
         mCursor=cursor;
     }
     public interface Callback{
-        void onItemSelected(Cursor cursor,int position);
+        void onItemSelected(Cursor cursor,int position,ArticleAdapterViewHolder holder);
     }
 
     @Override
@@ -33,7 +35,8 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleA
 
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.carditem_article, parent, false);
             view.setFocusable(true);
-            return new ArticleAdapterViewHolder(view);
+            holder=new ArticleAdapterViewHolder(view);
+            return holder;
         } else {
             throw new RuntimeException("Not bound to RecyclerView");
         }
@@ -71,10 +74,11 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleA
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
             mCursor.moveToPosition(adapterPosition);
-            ((Callback) mContext).onItemSelected(mCursor,adapterPosition);
+            ((Callback) mContext).onItemSelected(mCursor,adapterPosition,holder);
 
 
         }
     }
+
 
 }

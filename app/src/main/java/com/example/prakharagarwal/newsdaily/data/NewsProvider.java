@@ -19,6 +19,9 @@ public class NewsProvider extends ContentProvider {
     static final int ARTICLE = 100;
     static final int SOURCE = 200;
     static final int SELECTED_SOURCE = 300;
+    static final int WEATHER = 400;
+
+
 
     static UriMatcher buildUriMatcher() {
         // I know what you're thinking.  Why create a UriMatcher when you can use regular
@@ -34,6 +37,8 @@ public class NewsProvider extends ContentProvider {
         matcher.addURI(authority, NewsContract.PATH_ARTICLE, ARTICLE);
         matcher.addURI(authority, NewsContract.PATH_SOURCE, SOURCE);
         matcher.addURI(authority, NewsContract.PATH_SELECTED_SOURCE, SELECTED_SOURCE);
+        matcher.addURI(authority,NewsContract.PATH_WEATHER, WEATHER);
+
         return matcher;
     }
     @Override
@@ -89,6 +94,20 @@ public class NewsProvider extends ContentProvider {
                 break;
             }
 
+            case WEATHER: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        NewsContract.WeatherEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -111,6 +130,9 @@ public class NewsProvider extends ContentProvider {
                 return NewsContract.SourceEntry.CONTENT_ITEM_TYPE;
             case SELECTED_SOURCE:
                 return NewsContract.SelectedSourceEntry.CONTENT_ITEM_TYPE;
+            case WEATHER:
+                return NewsContract.WeatherEntry.CONTENT_TYPE;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -133,6 +155,16 @@ public class NewsProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
+
+            case WEATHER: {
+                long _id = db.insert(NewsContract.WeatherEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = NewsContract.WeatherEntry.buildWeatherUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -160,6 +192,10 @@ public class NewsProvider extends ContentProvider {
                 rowsDeleted = db.delete(
                         NewsContract.SelectedSourceEntry.TABLE_NAME, selection, selectionArgs);
                 break;
+            case WEATHER:
+                rowsDeleted = db.delete(NewsContract.WeatherEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -216,6 +252,7 @@ public class NewsProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+
         return 0;
     }
 }

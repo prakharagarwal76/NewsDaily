@@ -37,7 +37,7 @@ public class DetailActivityFragment extends Fragment {
         Bundle arguments=getArguments();
         tView.setVisibility(View.VISIBLE);
         rel.setVisibility(View.INVISIBLE);
-        if(arguments.getString("desc")!=null){
+        if(arguments!=null){
             tView.setVisibility(View.INVISIBLE);
             rel.setVisibility(View.VISIBLE);
             headlineView.setText(arguments.getString("headline"));

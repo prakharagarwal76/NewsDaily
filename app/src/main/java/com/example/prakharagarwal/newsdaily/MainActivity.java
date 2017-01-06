@@ -1,8 +1,11 @@
 package com.example.prakharagarwal.newsdaily;
 
+import android.annotation.TargetApi;
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -11,6 +14,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.example.prakharagarwal.newsdaily.data.NewsContract;
 import com.example.prakharagarwal.newsdaily.sync.NewsSyncAdapter;
@@ -60,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
                     viewPagerAdapter.addFragment(new GeneralNewsFragment(), "GENERAL");
                     viewPagerAdapter.addFragment(new BusinessNewsFragment(), "BUSINESS");
                     viewPagerAdapter.addFragment(new EntertainmentNewsFragment(), "ENTERTAINMENT");
+                    viewPagerAdapter.addFragment(new WeatherNewsFragment(), "WEATHER");
 
 
                     viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -76,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
             viewPagerAdapter.addFragment(new GeneralNewsFragment(), "GENERAL");
             viewPagerAdapter.addFragment(new BusinessNewsFragment(), "BUSINESS");
             viewPagerAdapter.addFragment(new EntertainmentNewsFragment(), "ENTERTAINMENT");
-
+            viewPagerAdapter.addFragment(new WeatherNewsFragment(), "WEATHER");
 
             viewPager = (ViewPager) findViewById(R.id.viewpager);
             tabLayout = (TabLayout) findViewById(R.id.tablayout);
@@ -84,26 +89,29 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
             tabLayout.setupWithViewPager(viewPager);
 
             if(getIntent()!=null){
-                Intent intent= getIntent();
-                Bundle arguments=new Bundle();
+                if(mTwoPane) {
+                    Intent intent = getIntent();
+                    Bundle arguments = new Bundle();
 
-                arguments.putString("urlToImage",intent.getStringExtra("urlToImage"));
-                arguments.putString("headline",intent.getStringExtra("headline"));
-                arguments.putString("desc",intent.getStringExtra("desc"));
-                arguments.putString("url",intent.getStringExtra("url"));
-                DetailActivityFragment fragment=new DetailActivityFragment();
-                fragment.setArguments(arguments);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.detailContainer, fragment, "DetailActivityFragment.TAG")
-                        .commit();
+                    arguments.putString("urlToImage", intent.getStringExtra("urlToImage"));
+                    arguments.putString("headline", intent.getStringExtra("headline"));
+                    arguments.putString("desc", intent.getStringExtra("desc"));
+                    arguments.putString("url", intent.getStringExtra("url"));
+                    DetailActivityFragment fragment = new DetailActivityFragment();
+                    fragment.setArguments(arguments);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.detailContainer, fragment, "DetailActivityFragment.TAG")
+                            .commit();
+                }
             }
         }
 
 
 
     }
+
     @Override
-    public void onItemSelected(Cursor cursor,int position){
+    public void onItemSelected(Cursor cursor,int position,ArticleAdapter.ArticleAdapterViewHolder view){
         if(mTwoPane){
             Bundle arguments=new Bundle();
             cursor.moveToPosition(position);
@@ -122,7 +130,13 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
             intent.putExtra("headline",cursor.getString(1));
             intent.putExtra("desc",cursor.getString(2));
             intent.putExtra("url",cursor.getString(3));
-            startActivity(intent);
+            if(Build.VERSION.SDK_INT>=21) {
+                Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(this, view.I1, view.I1.getTransitionName())
+                        .toBundle();
+                startActivity(intent,bundle);
+            }else{
+                startActivity(intent);
+            }
         }
 
     }
@@ -133,20 +147,7 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
 
 
