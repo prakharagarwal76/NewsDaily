@@ -20,31 +20,32 @@ public class DetailActivityFragment extends Fragment {
     TextView descView;
     ImageView imageView;
     TextView link;
+
     public DetailActivityFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView= inflater.inflate(R.layout.fragment_detail, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
-        headlineView=(TextView)rootView.findViewById(R.id.detail_headline);
-        descView=(TextView)rootView.findViewById(R.id.detail_desc);
-        imageView=(ImageView)rootView.findViewById(R.id.detail_image);
-        link=(TextView)rootView.findViewById(R.id.detail_url);
-        RelativeLayout rel=(RelativeLayout)rootView.findViewById(R.id.detail_rellayout);
-        TextView tView=(TextView)rootView.findViewById(R.id.detail_emptyText);
-        Bundle arguments=getArguments();
+        headlineView = (TextView) rootView.findViewById(R.id.detail_headline);
+        descView = (TextView) rootView.findViewById(R.id.detail_desc);
+        imageView = (ImageView) rootView.findViewById(R.id.detail_image);
+        link = (TextView) rootView.findViewById(R.id.detail_url);
+        RelativeLayout rel = (RelativeLayout) rootView.findViewById(R.id.detail_rellayout);
+        TextView tView = (TextView) rootView.findViewById(R.id.detail_emptyText);
+        Bundle arguments = getArguments();
         tView.setVisibility(View.VISIBLE);
         rel.setVisibility(View.INVISIBLE);
-        if(arguments!=null){
+        if (arguments != null) {
             tView.setVisibility(View.INVISIBLE);
             rel.setVisibility(View.VISIBLE);
             headlineView.setText(arguments.getString("headline"));
             descView.setText(arguments.getString("desc"));
             link.setText(arguments.getString("url"));
             Picasso.with(getContext()).load(arguments.getString("urlToImage")).into(imageView);
-        }else if(getActivity().getIntent().getStringExtra("desc")!=null) {
+        } else if (getActivity().getIntent().getStringExtra("desc") != null) {
             tView.setVisibility(View.INVISIBLE);
             rel.setVisibility(View.VISIBLE);
             Intent intent = getActivity().getIntent();

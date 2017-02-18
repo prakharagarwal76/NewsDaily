@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/detail_fullstory"
         android:padding="10dp"
-        android:text="Full Story"
+        android:text="@string/full_story_link"
         android:layout_below="@+id/detail_desc"
         style="@style/Base.TextAppearance.AppCompat.Body2"
         android:textSize="20sp"
@@ -65,7 +65,8 @@
         android:padding="10dp"
         android:autoLink="web"
         android:layout_alignParentBottom="true"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/detail_fullstory" />
     </RelativeLayout>
 </FrameLayout>
 </ScrollView>

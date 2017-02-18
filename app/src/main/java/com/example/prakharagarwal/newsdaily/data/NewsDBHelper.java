@@ -50,7 +50,7 @@ public class NewsDBHelper extends SQLiteOpenHelper {
 
         final String SQL_CREATE_Weather_TABLE = "CREATE TABLE " + NewsContract.WeatherEntry.TABLE_NAME + " (" +
                 NewsContract.WeatherEntry.COLUMN_POSTAL_CODE + " REAL , " +
-                NewsContract.WeatherEntry.COLUMN_DATE+ " REAL , "+
+                NewsContract.WeatherEntry.COLUMN_DATE+ " TEXT , "+
                 NewsContract.WeatherEntry.COLUMN_ICON+" TEXT , "+
                 NewsContract.WeatherEntry.COLUMN_SHORT_DESC + " TEXT , " +
                 NewsContract.WeatherEntry.COLUMN_MIN_TEMP + " REAL , " +

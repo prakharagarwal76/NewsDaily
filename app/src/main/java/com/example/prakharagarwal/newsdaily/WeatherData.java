@@ -6,22 +6,22 @@ package com.example.prakharagarwal.newsdaily;
 public class WeatherData {
 
 
-    long date ;
+    long date;
 
     String icon;
-    String description ;
+    String description;
     double high;
     double low;
 
 
-    public WeatherData(long date,String icon,
-                       String description ,double low, double max){
-        this.date=date;
+    public WeatherData(long date, String icon,
+                       String description, double max, double low) {
+        this.date = date;
 
-        this.icon=icon;
-        this.description=description;
-        this.high=max;
-        this.low=low;
+        this.icon = icon;
+        this.description = description;
+        this.high = max;
+        this.low = low;
 
     }
 }

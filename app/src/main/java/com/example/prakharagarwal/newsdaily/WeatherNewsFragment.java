@@ -36,6 +36,8 @@ import android.widget.Toast;
 
 import com.example.prakharagarwal.newsdaily.data.NewsContract;
 import com.example.prakharagarwal.newsdaily.data.NewsContract.WeatherEntry;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -59,18 +61,20 @@ import java.util.Locale;
 /**
  * Created by prakharagarwal on 03/01/17.
  */
-public class WeatherNewsFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener,
-        LoaderManager.LoaderCallbacks<Cursor>{
+public class WeatherNewsFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener,
+        LoaderManager.LoaderCallbacks<Cursor> {
 
-    private final String LOG_TAG=WeatherNewsFragment.class.getName();
+    private final String LOG_TAG = WeatherNewsFragment.class.getName();
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private TextView text;
+    private TextView text_date;
     private Button refresh;
     ImageView icon;
-    TextView maxTemp;
-    TextView minTemp;
+    TextView text_maxTemp;
+    TextView text_minTemp;
+    TextView text_desc;
     TextView emptyView;
+    TextView text_location;
     ScrollView scrollView;
     private static final int MY_PERMISSION_REQUEST_READ_FINE_LOCATION = 501;
     private double mLatitude;
@@ -83,11 +87,11 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mGoogleApiClient=new GoogleApiClient.Builder(getContext())
-                            .addApi(LocationServices.API)
-                            .addConnectionCallbacks(this)
-                            .addOnConnectionFailedListener(this)
-                            .build();
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
         getLoaderManager().initLoader(5, null, this);
     }
 
@@ -102,7 +106,6 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
         super.onStop();
         mGoogleApiClient.disconnect();
     }
-
 
 
     @Override
@@ -124,28 +127,24 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        setHasOptionsMenu(true);
         View rootView = inflater.inflate(R.layout.fragment_weathernews, container, false);
-        /*text=(TextView)rootView.findViewById(R.id.detail_city_textview);
-        icon=(ImageView)rootView.findViewById(R.id.detail_icon);
-        maxTemp=(TextView)rootView.findViewById(R.id.detail_high_textview);
-        minTemp=(TextView)rootView.findViewById(R.id.detail_low_textview);
-        if(weatherCursor!=null) {
-            emptyView=(TextView)rootView.findViewById(R.id.empty_tv);
-            scrollView=(ScrollView)rootView.findViewById(R.id.scrollView1);
-            emptyView.setVisibility(View.INVISIBLE);
-            scrollView.setVisibility(View.VISIBLE);
-            weatherCursor.moveToFirst();
-            text.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_LOCATION)));
-            maxTemp.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_MAX_TEMP)));
-            minTemp.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_MIN_TEMP)));
-            if(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_ICON))!=null) {
-                String iconString = "i" + weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_ICON));
+        text_date = (TextView) rootView.findViewById(R.id.text_weather_date);
+        text_maxTemp = (TextView) rootView.findViewById(R.id.text_weather_high);
+        text_minTemp = (TextView) rootView.findViewById(R.id.text_weather_low);
+        icon = (ImageView) rootView.findViewById(R.id.image_weather_icon);
+        text_desc = (TextView) rootView.findViewById(R.id.text_weather_desc);
+        emptyView = (TextView) rootView.findViewById(R.id.text_weather_empty);
+        text_location = (TextView) rootView.findViewById(R.id.text_weather_location);
+        scrollView = (ScrollView) rootView.findViewById(R.id.scrollview1);
 
-                int iconID = getContext().getResources().getIdentifier(iconString, "drawable", getContext().getPackageName());
+        AdView mAdView = (AdView) rootView.findViewById(R.id.adView_weather);
 
-                icon.setImageDrawable(getContext().getResources().getDrawable(iconID));
-            }
-        }*/
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+        mAdView.loadAd(adRequest);
+
 
         if (ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -157,43 +156,61 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
         }
 
 
-
-
         return rootView;
     }
 
-    public void reloadWeather(){
+    public void reloadWeather() {
         try {
+            mGoogleApiClient.reconnect();
             Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
             List<Address> addresses = geocoder.getFromLocation(mLatitude, mLongitude, 1);
-            if(!addresses.isEmpty()) {
+            if (!addresses.isEmpty()) {
                 Address add = addresses.get(0);
-                Log.d("Address",add.toString());
+                Log.d("Address", add.toString());
                 pincode = add.getPostalCode();
-                int index=add.getMaxAddressLineIndex();
-                String addres="";
-                for(int i=0;i<=index;i++)
-                {
-                    addres+=add.getAddressLine(i)+" ";
+                int index = add.getMaxAddressLineIndex();
+                String addres = "";
+                for (int i = 0; i <= index; i++) {
+                    addres += add.getAddressLine(i) + " ";
                 }
 
-                location=addres+"";
+                location = addres + "";
 
                 if (pincode != null) {
-                    Toast.makeText(getActivity(), addres, Toast.LENGTH_LONG).show();
-
 
                     new FetchWeatherTask().execute(pincode);
 
                 } else {
-                    Toast.makeText(getActivity(), "Pincode not found, Please retry", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), getContext().getString(R.string.pincode_not_found), Toast.LENGTH_LONG).show();
                 }
-            }
-            else{
-                Toast.makeText(getActivity(), "Location not available", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getActivity(), getContext().getString(R.string.location_not_available), Toast.LENGTH_LONG).show();
             }
 
         } catch (IOException e) {
+        }
+    }
+
+    public void updateView() {
+        if (weatherCursor.moveToFirst()) {
+            scrollView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.INVISIBLE);
+            weatherCursor.moveToFirst();
+            if (text_date != null && text_minTemp != null && text_maxTemp != null && icon != null
+                    && text_desc != null && text_location != null) {
+                text_date.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_DATE)));
+                long date2 = weatherCursor.getLong(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_DATE));
+                String date1 = getReadableDateString(date2);
+                text_maxTemp.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_MAX_TEMP)));
+                text_minTemp.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_MIN_TEMP)));
+                String iconString = "i" + weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_ICON));
+
+                int iconID = getContext().getResources().getIdentifier(iconString, "drawable", getContext().getPackageName());
+
+                icon.setImageDrawable(getContext().getResources().getDrawable(iconID));
+                text_desc.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_SHORT_DESC)));
+                text_location.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_LOCATION)));
+            }
         }
     }
 
@@ -202,68 +219,68 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case MY_PERMISSION_REQUEST_READ_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
+
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mGoogleApiClient.connect();
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
 
-                } else {
 
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
                 return;
             }
 
-            // other 'case' lines to check for other
-            // permissions this app might request
+
         }
+    }
+
+    private String getReadableDateString(long time) {
+
+        SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
+        return shortenedDateFormat.format(time);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        mLocationRequest= LocationRequest.create();
+        mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(10000);
         try {
 
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,this );
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 
-        }catch (SecurityException e){
-            Log.e(LOG_TAG,e.toString());
+        } catch (SecurityException e) {
+            Log.e(LOG_TAG, e.toString());
         }
     }
 
 
     @Override
     public void onConnectionSuspended(int i) {
-       Log.e(LOG_TAG,"google api client connection suspended");
+        Log.e(LOG_TAG, "google api client connection suspended");
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.e(LOG_TAG,"location"+location.toString());
-       mLatitude=location.getLatitude();
-        mLongitude=location.getLongitude();
+        Log.e(LOG_TAG, "location" + location.toString());
+        mLatitude = location.getLatitude();
+        mLongitude = location.getLongitude();
     }
-
 
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.e(LOG_TAG,"google api client connection failed");
+        Log.e(LOG_TAG, "google api client connection failed");
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] PROJECTION = new String[] {
+        String[] PROJECTION = new String[]{
                 WeatherEntry.COLUMN_LOCATION,
                 WeatherEntry.COLUMN_ICON,
+                WeatherEntry.COLUMN_DATE,
                 WeatherEntry.COLUMN_MAX_TEMP,
                 WeatherEntry.COLUMN_MIN_TEMP,
-                WeatherEntry.COLUMN_POSTAL_CODE
+                WeatherEntry.COLUMN_SHORT_DESC
         };
         return new CursorLoader(getContext(),
                 NewsContract.WeatherEntry.CONTENT_URI,
@@ -275,22 +292,10 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if(data!=null) {
+        if (data != null) {
             weatherCursor = data;
-           /* if(text!=null && maxTemp!=null && icon!=null && minTemp!=null){
-                weatherCursor.moveToFirst();
-                text.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_LOCATION)));
-                maxTemp.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_MAX_TEMP)));
-                minTemp.setText(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_MIN_TEMP)));
-                if(weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_ICON))!=null) {
-                    String iconString = "i" + weatherCursor.getString(weatherCursor.getColumnIndex(WeatherEntry.COLUMN_ICON));
 
-                    int iconID = getContext().getResources().getIdentifier(iconString, "drawable", getContext().getPackageName());
-
-                    icon.setImageDrawable(getContext().getResources().getDrawable(iconID));
-                }
-            }*/
-
+            updateView();
         }
     }
 
@@ -302,7 +307,8 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
     public class FetchWeatherTask extends AsyncTask<String, Void, WeatherData> {
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
-        private String getReadableDateString(long time){
+
+        private String getReadableDateString(long time) {
 
             SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
             return shortenedDateFormat.format(time);
@@ -351,7 +357,7 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
                     JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
                     high = temperatureObject.getDouble(OWM_MAX);
                     low = temperatureObject.getDouble(OWM_MIN);
-                    WeatherData weatherValues = new WeatherData( dateTime,
+                    WeatherData weatherValues = new WeatherData(dateTime,
                             icon, description, high, low);
 
                     return weatherValues;
@@ -364,6 +370,7 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
             }
             return null;
         }
+
         @Override
         protected WeatherData doInBackground(String... params) {
 
@@ -393,7 +400,7 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
                         .appendQueryParameter(FORMAT_PARAM, format)
                         .appendQueryParameter(UNITS_PARAM, units)
                         .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                        .appendQueryParameter(APPID_PARAM, "cb46fcc1d00c4a44ef1f4f163b4a695c")
+                        .appendQueryParameter(APPID_PARAM, getContext().getString(R.string.openweather_apikey))
                         .build();
 
                 URL url = new URL(builtUri.toString());
@@ -455,8 +462,9 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
 
                 ContentValues weatherValues = new ContentValues();
 
+                String date1 = getReadableDateString(result.date);
 
-                weatherValues.put(NewsContract.WeatherEntry.COLUMN_DATE, result.date);
+                weatherValues.put(NewsContract.WeatherEntry.COLUMN_DATE, date1);
                 weatherValues.put(NewsContract.WeatherEntry.COLUMN_ICON, result.icon);
                 weatherValues.put(NewsContract.WeatherEntry.COLUMN_SHORT_DESC, result.description);
                 weatherValues.put(NewsContract.WeatherEntry.COLUMN_MAX_TEMP, result.high);
@@ -464,11 +472,10 @@ public class WeatherNewsFragment extends Fragment implements GoogleApiClient.Con
                 weatherValues.put(NewsContract.WeatherEntry.COLUMN_LOCATION, location);
                 weatherValues.put(WeatherEntry.COLUMN_POSTAL_CODE, pincode);
 
-               getActivity().getContentResolver().delete(WeatherEntry.CONTENT_URI,null,null);
-                    Uri insertedUri = getActivity().getContentResolver().insert(
-                            NewsContract.WeatherEntry.CONTENT_URI,
-                            weatherValues);
-                Toast.makeText(getContext(), result.date+"", Toast.LENGTH_SHORT).show();
+                getActivity().getContentResolver().delete(WeatherEntry.CONTENT_URI, null, null);
+                Uri insertedUri = getActivity().getContentResolver().insert(
+                        NewsContract.WeatherEntry.CONTENT_URI,
+                        weatherValues);
 
 
             }

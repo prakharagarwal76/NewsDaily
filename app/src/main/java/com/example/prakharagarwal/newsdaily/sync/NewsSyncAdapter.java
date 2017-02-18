@@ -173,7 +173,7 @@ public class NewsSyncAdapter  extends AbstractThreadedSyncAdapter {
                 Uri builtUri = Uri.parse(NEWS_BASE_URL).buildUpon()
                         .appendQueryParameter(SOURCE_PARAM, s[1])
                         //.appendQueryParameter(CATEGORY_PARAM, format)
-                        .appendQueryParameter(APPID_PARAM, "c4fcb7a68fc74e49ada5bdf985de3c16")
+                        .appendQueryParameter(APPID_PARAM,getContext().getString(R.string.news_api_key))
                         .build();
 
                 URL url = new URL(builtUri.toString());
@@ -207,7 +207,7 @@ public class NewsSyncAdapter  extends AbstractThreadedSyncAdapter {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
-                Log.d("Data 1",forecastJsonStr);
+
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);

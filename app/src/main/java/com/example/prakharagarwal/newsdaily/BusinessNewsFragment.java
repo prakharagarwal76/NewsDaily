@@ -17,6 +17,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
+
 import com.example.prakharagarwal.newsdaily.data.NewsContract;
 import com.example.prakharagarwal.newsdaily.sync.NewsSyncAdapter;
 import com.google.android.gms.ads.AdRequest;
@@ -31,10 +33,12 @@ import java.util.List;
 public class BusinessNewsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
-    public  Cursor articleCursor;
+    public Cursor articleCursor;
     ArticleAdapter adapter;
     RecyclerView mRecyclerView;
+    TextView emptyView;
     int SPINNERSELECETIONFLAG;
+
     public BusinessNewsFragment() {
 
     }
@@ -52,7 +56,7 @@ public class BusinessNewsFragment extends Fragment implements LoaderManager.Load
         View rootView = inflater.inflate(R.layout.fragment_article, container, false);
 
         // articleCursor=((MainActivity)getActivity()).getArticleCursor("general");
-        String[] PROJECTION = new String[] {
+        String[] PROJECTION = new String[]{
                 "rowid _id",
                 NewsContract.ArticleEntry.COLUMN_TITLE,
                 NewsContract.ArticleEntry.COLUMN_DESCRIPTION,
@@ -61,53 +65,52 @@ public class BusinessNewsFragment extends Fragment implements LoaderManager.Load
         };
         //articleCursor=getActivity().getContentResolver().query(NewsContract.ArticleEntry.CONTENT_URI,PROJECTION,"category='general'",null,null);
         // adapter= new ArticleAdapter(getContext(),articleCursor);
-        AdView mAdView = (AdView)rootView.findViewById(R.id.adView);
+        AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
 
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
                 .build();
         mAdView.loadAd(adRequest);
 
-        mRecyclerView=(RecyclerView) rootView.findViewById(R.id.article_recyclerview);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.article_recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         mRecyclerView.setAdapter(adapter);
+        emptyView = (TextView) rootView.findViewById(R.id.text_article_empty);
+        Spinner spinner = (Spinner) rootView.findViewById(R.id.spinner);
 
-        Spinner spinner=(Spinner)rootView.findViewById(R.id.spinner);
-
-        final Cursor cursor2= getActivity().getContentResolver().query(NewsContract.SourceEntry.CONTENT_URI,null,null,null,null);
-        Cursor cur=getActivity().getContentResolver().query(NewsContract.SelectedSourceEntry.CONTENT_URI,null,null,null,null);
-        String selectedSource=null;
-        int pos=0;
-        if(cur!=null)
-        { cur.moveToFirst();
-        while(cur.moveToNext()){
-            if(cur.getString(0).equals("business"))
-                selectedSource=cur.getString(1);
-        }}
+        final Cursor cursor2 = getActivity().getContentResolver().query(NewsContract.SourceEntry.CONTENT_URI, null, null, null, null);
+        Cursor cur = getActivity().getContentResolver().query(NewsContract.SelectedSourceEntry.CONTENT_URI, null, null, null, null);
+        String selectedSource = null;
+        int pos = 0;
+        if (cur != null) {
+            cur.moveToFirst();
+            while (cur.moveToNext()) {
+                if (cur.getString(0).equals("business"))
+                    selectedSource = cur.getString(1);
+            }
+        }
 //            Log.e("selectedSource",selectedSource);
         List<String> categories = new ArrayList<String>();
         final List<String> categoriesID = new ArrayList<String>();
-        int flag=0;
-        if(cursor2!=null)
-        {cursor2.moveToFirst();
-        while(cursor2.moveToNext()){
+        int flag = 0;
+        if (cursor2 != null) {
+            cursor2.moveToFirst();
+            while (cursor2.moveToNext()) {
 
-            if(cursor2.getString(2).equals("business"))
-            {
-                categories.add(cursor2.getString(0));
+                if (cursor2.getString(2).equals("business")) {
+                    categories.add(cursor2.getString(0));
 
-                categoriesID.add(cursor2.getString(1));
-                if(selectedSource!=null)
-                {
-                    if(selectedSource.equals(cursor2.getString(1))){
-                        pos=flag;
-                        Log.e("pos",""+pos);
+                    categoriesID.add(cursor2.getString(1));
+                    if (selectedSource != null) {
+                        if (selectedSource.equals(cursor2.getString(1))) {
+                            pos = flag;
+                            Log.e("pos", "" + pos);
+                        }
                     }
+                    flag++;
                 }
-                flag++;
             }
-        }}
+        }
 
 
         // Creating adapter for spinner
@@ -118,25 +121,25 @@ public class BusinessNewsFragment extends Fragment implements LoaderManager.Load
 
         // attaching data adapter to spinner
         spinner.setAdapter(dataAdapter);
-        SPINNERSELECETIONFLAG=0;
+        SPINNERSELECETIONFLAG = 0;
         spinner.setSelection(pos);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(SPINNERSELECETIONFLAG==0){
-                SPINNERSELECETIONFLAG=1;
-                }else{
-                ContentValues cv= new ContentValues();
-                String ID=categoriesID.get(position);
+                if (SPINNERSELECETIONFLAG == 0) {
+                    SPINNERSELECETIONFLAG = 1;
+                } else {
+                    ContentValues cv = new ContentValues();
+                    String ID = categoriesID.get(position);
 
-                cv.put(NewsContract.SelectedSourceEntry.COLUMN_CATEGORY, "business");
-                cv.put(NewsContract.SelectedSourceEntry.COLUMN_SOURCE_ID, ID);
-                getActivity().getContentResolver().delete(NewsContract.SelectedSourceEntry.CONTENT_URI,"category='business'",null);
-                getActivity().getContentResolver().insert(NewsContract.SelectedSourceEntry.CONTENT_URI,cv);
-                NewsSyncAdapter.syncImmediately(getContext());
-                getLoaderManager().restartLoader(2,null,BusinessNewsFragment.this);
-                    SPINNERSELECETIONFLAG=1;
-            }
+                    cv.put(NewsContract.SelectedSourceEntry.COLUMN_CATEGORY, "business");
+                    cv.put(NewsContract.SelectedSourceEntry.COLUMN_SOURCE_ID, ID);
+                    getActivity().getContentResolver().delete(NewsContract.SelectedSourceEntry.CONTENT_URI, "category='business'", null);
+                    getActivity().getContentResolver().insert(NewsContract.SelectedSourceEntry.CONTENT_URI, cv);
+                    NewsSyncAdapter.syncImmediately(getContext());
+                    getLoaderManager().restartLoader(2, null, BusinessNewsFragment.this);
+                    SPINNERSELECETIONFLAG = 1;
+                }
             }
 
             @Override
@@ -149,14 +152,14 @@ public class BusinessNewsFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] PROJECTION = new String[] {
+        String[] PROJECTION = new String[]{
                 "rowid _id",
                 NewsContract.ArticleEntry.COLUMN_TITLE,
                 NewsContract.ArticleEntry.COLUMN_DESCRIPTION,
                 NewsContract.ArticleEntry.COLUMN_URL,
                 NewsContract.ArticleEntry.COLUMN_URL_TO_IMAGE,
         };
-        Log.e("inside on create loader","yoyo");
+
         return new CursorLoader(getContext(),
                 NewsContract.ArticleEntry.CONTENT_URI,
                 PROJECTION,
@@ -168,16 +171,19 @@ public class BusinessNewsFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        articleCursor=data;
-        //articleCursor.notify();
-        adapter=new ArticleAdapter(getContext(),articleCursor);
-        adapter.notifyDataSetChanged();
-        mRecyclerView.setAdapter(adapter);
-        Log.e("inside on finisloader","yoyo");
+        if (data.moveToFirst()) {
+            articleCursor = data;
+            adapter = new ArticleAdapter(getContext(), articleCursor);
+            adapter.notifyDataSetChanged();
+            mRecyclerView.setAdapter(adapter);
+            emptyView.setVisibility(View.INVISIBLE);
+        }
+
+
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        Log.e("inside on restart","yoyo");
+
     }
 }

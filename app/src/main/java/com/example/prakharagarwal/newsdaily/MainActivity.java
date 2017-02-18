@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.prakharagarwal.newsdaily.data.NewsContract;
 import com.example.prakharagarwal.newsdaily.sync.NewsSyncAdapter;
@@ -34,23 +35,24 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        NewsSyncAdapter.initializeSyncAdapter(this);
-        Cursor c=getContentResolver().query(NewsContract.SourceEntry.CONTENT_URI,null,null,null,null);
-        if(findViewById(R.id.detailContainer)!=null){
-            mTwoPane=true;
 
-            if(savedInstanceState==null){
+        NewsSyncAdapter.initializeSyncAdapter(this);
+        Cursor c = getContentResolver().query(NewsContract.SourceEntry.CONTENT_URI, null, null, null, null);
+        if (findViewById(R.id.detailContainer) != null) {
+            mTwoPane = true;
+
+            if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.detailContainer, new DetailActivityFragment(), "DETAILFRAGMEN_TAG")
                         .commit();
             }
-        }else {
-            mTwoPane=false;
+        } else {
+            mTwoPane = false;
         }
-        if(!c.moveToNext()) {
+        if (!c.moveToNext()) {
             final ProgressDialog progress = new ProgressDialog(this);
-            progress.setTitle("Loading");
-            progress.setMessage("Please wait while the news is being loaded...");
+            progress.setTitle(this.getString(R.string.progressDialog_title));
+            progress.setMessage(this.getString(R.string.progressDialog_message));
             progress.show();
 
             //if widget sends intent in tablet mode
@@ -76,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
 
             Handler pdCanceller = new Handler();
             pdCanceller.postDelayed(progressRunnable, 5000);
-        }else{
+        } else {
             viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
             viewPagerAdapter.addFragment(new GeneralNewsFragment(), "GENERAL");
             viewPagerAdapter.addFragment(new BusinessNewsFragment(), "BUSINESS");
@@ -88,8 +90,8 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
             viewPager.setAdapter(viewPagerAdapter);
             tabLayout.setupWithViewPager(viewPager);
 
-            if(getIntent()!=null){
-                if(mTwoPane) {
+            if (getIntent() != null) {
+                if (mTwoPane) {
                     Intent intent = getIntent();
                     Bundle arguments = new Bundle();
 
@@ -107,48 +109,45 @@ public class MainActivity extends AppCompatActivity implements ArticleAdapter.Ca
         }
 
 
-
     }
 
     @Override
-    public void onItemSelected(Cursor cursor,int position,ArticleAdapter.ArticleAdapterViewHolder view){
-        if(mTwoPane){
-            Bundle arguments=new Bundle();
+    public void onItemSelected(Cursor cursor, int position, ArticleAdapter.ArticleAdapterViewHolder view) {
+        if (mTwoPane) {
+            Bundle arguments = new Bundle();
             cursor.moveToPosition(position);
-            arguments.putString("urlToImage",cursor.getString(4));
-            arguments.putString("headline",cursor.getString(1));
-            arguments.putString("desc",cursor.getString(2));
-            arguments.putString("url",cursor.getString(3));
-            DetailActivityFragment fragment=new DetailActivityFragment();
+            arguments.putString("urlToImage", cursor.getString(4));
+            arguments.putString("headline", cursor.getString(1));
+            arguments.putString("desc", cursor.getString(2));
+            arguments.putString("url", cursor.getString(3));
+            DetailActivityFragment fragment = new DetailActivityFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detailContainer, fragment, "DetailActivityFragment.TAG")
                     .commit();
-        }else{
-            Intent intent= new Intent(this,new DetailActivity().getClass());
-            intent.putExtra("urlToImage",cursor.getString(4));
-            intent.putExtra("headline",cursor.getString(1));
-            intent.putExtra("desc",cursor.getString(2));
-            intent.putExtra("url",cursor.getString(3));
-            if(Build.VERSION.SDK_INT>=21) {
+        } else {
+            Intent intent = new Intent(this, new DetailActivity().getClass());
+            intent.putExtra("urlToImage", cursor.getString(4));
+            intent.putExtra("headline", cursor.getString(1));
+            intent.putExtra("desc", cursor.getString(2));
+            intent.putExtra("url", cursor.getString(3));
+            if (Build.VERSION.SDK_INT >= 21) {
                 Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(this, view.I1, view.I1.getTransitionName())
                         .toBundle();
-                startActivity(intent,bundle);
-            }else{
+                startActivity(intent, bundle);
+            } else {
                 startActivity(intent);
             }
         }
 
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
-
-
-
 
 
 }

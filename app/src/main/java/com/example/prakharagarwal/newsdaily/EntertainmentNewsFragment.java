@@ -17,6 +17,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
+
 import com.example.prakharagarwal.newsdaily.data.NewsContract;
 import com.example.prakharagarwal.newsdaily.sync.NewsSyncAdapter;
 import com.google.android.gms.ads.AdRequest;
@@ -28,13 +30,15 @@ import java.util.List;
 /**
  * Created by prakharagarwal on 29/12/16.
  */
-public class EntertainmentNewsFragment  extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class EntertainmentNewsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
-    public  Cursor articleCursor;
+    public Cursor articleCursor;
     ArticleAdapter adapter;
+    TextView emptyView;
     RecyclerView mRecyclerView;
     int SPINNERSELECETIONFLAG;
+
     public EntertainmentNewsFragment() {
 
     }
@@ -52,7 +56,7 @@ public class EntertainmentNewsFragment  extends Fragment implements LoaderManage
         View rootView = inflater.inflate(R.layout.fragment_article, container, false);
 
         // articleCursor=((MainActivity)getActivity()).getArticleCursor("general");
-        String[] PROJECTION = new String[] {
+        String[] PROJECTION = new String[]{
                 "rowid _id",
                 NewsContract.ArticleEntry.COLUMN_TITLE,
                 NewsContract.ArticleEntry.COLUMN_DESCRIPTION,
@@ -61,49 +65,47 @@ public class EntertainmentNewsFragment  extends Fragment implements LoaderManage
         };
         //articleCursor=getActivity().getContentResolver().query(NewsContract.ArticleEntry.CONTENT_URI,PROJECTION,"category='general'",null,null);
         // adapter= new ArticleAdapter(getContext(),articleCursor);
-        AdView mAdView = (AdView)rootView.findViewById(R.id.adView);
+        AdView mAdView = (AdView) rootView.findViewById(R.id.adView);
 
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
                 .build();
         mAdView.loadAd(adRequest);
 
-        mRecyclerView=(RecyclerView) rootView.findViewById(R.id.article_recyclerview);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.article_recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
+        emptyView = (TextView) rootView.findViewById(R.id.text_article_empty);
         mRecyclerView.setAdapter(adapter);
 
-        Spinner spinner=(Spinner)rootView.findViewById(R.id.spinner);
+        Spinner spinner = (Spinner) rootView.findViewById(R.id.spinner);
 
-        final Cursor cursor2= getActivity().getContentResolver().query(NewsContract.SourceEntry.CONTENT_URI,null,null,null,null);
-        Cursor cur=getActivity().getContentResolver().query(NewsContract.SelectedSourceEntry.CONTENT_URI,null,null,null,null);
-        String selectedSource=null;
-        int pos=0;
-        if(cur!=null)
-        {cur.moveToFirst();
-        while(cur.moveToNext()){
-            if(cur.getString(0).equals("entertainment"))
-                selectedSource=cur.getString(1);
-        }
+        final Cursor cursor2 = getActivity().getContentResolver().query(NewsContract.SourceEntry.CONTENT_URI, null, null, null, null);
+        Cursor cur = getActivity().getContentResolver().query(NewsContract.SelectedSourceEntry.CONTENT_URI, null, null, null, null);
+        String selectedSource = null;
+        int pos = 0;
+        if (cur != null) {
+            cur.moveToFirst();
+            while (cur.moveToNext()) {
+                if (cur.getString(0).equals("entertainment"))
+                    selectedSource = cur.getString(1);
+            }
         }
 //            Log.e("selectedSource",selectedSource);
         List<String> categories = new ArrayList<String>();
         final List<String> categoriesID = new ArrayList<String>();
-        int flag=0;
-        if(cursor2!=null)
-        cursor2.moveToFirst();
-        while(cursor2.moveToNext()){
+        int flag = 0;
+        if (cursor2 != null)
+            cursor2.moveToFirst();
+        while (cursor2.moveToNext()) {
 
-            if(cursor2.getString(2).equals("entertainment"))
-            {
+            if (cursor2.getString(2).equals("entertainment")) {
                 categories.add(cursor2.getString(0));
 
                 categoriesID.add(cursor2.getString(1));
-                if(selectedSource!=null)
-                {
-                    if(selectedSource.equals(cursor2.getString(1))){
-                        pos=flag;
-                        Log.e("pos",""+pos);
+                if (selectedSource != null) {
+                    if (selectedSource.equals(cursor2.getString(1))) {
+                        pos = flag;
+                        Log.e("pos", "" + pos);
                     }
                 }
                 flag++;
@@ -119,14 +121,14 @@ public class EntertainmentNewsFragment  extends Fragment implements LoaderManage
 
         // attaching data adapter to spinner
         spinner.setAdapter(dataAdapter);
-        SPINNERSELECETIONFLAG=0;
+        SPINNERSELECETIONFLAG = 0;
         spinner.setSelection(pos);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (SPINNERSELECETIONFLAG == 0) {
-            SPINNERSELECETIONFLAG=1;
+                    SPINNERSELECETIONFLAG = 1;
                 } else {
                     ContentValues cv = new ContentValues();
                     String ID = categoriesID.get(position);
@@ -137,9 +139,10 @@ public class EntertainmentNewsFragment  extends Fragment implements LoaderManage
                     getActivity().getContentResolver().insert(NewsContract.SelectedSourceEntry.CONTENT_URI, cv);
                     NewsSyncAdapter.syncImmediately(getContext());
                     getLoaderManager().restartLoader(3, null, EntertainmentNewsFragment.this);
-                    SPINNERSELECETIONFLAG=1;
+                    SPINNERSELECETIONFLAG = 1;
                 }
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
@@ -150,14 +153,14 @@ public class EntertainmentNewsFragment  extends Fragment implements LoaderManage
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] PROJECTION = new String[] {
+        String[] PROJECTION = new String[]{
                 "rowid _id",
                 NewsContract.ArticleEntry.COLUMN_TITLE,
                 NewsContract.ArticleEntry.COLUMN_DESCRIPTION,
                 NewsContract.ArticleEntry.COLUMN_URL,
                 NewsContract.ArticleEntry.COLUMN_URL_TO_IMAGE,
         };
-        Log.e("inside on create loader","yoyo");
+
         return new CursorLoader(getContext(),
                 NewsContract.ArticleEntry.CONTENT_URI,
                 PROJECTION,
@@ -169,16 +172,18 @@ public class EntertainmentNewsFragment  extends Fragment implements LoaderManage
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        articleCursor=data;
-        //articleCursor.notify();
-        adapter=new ArticleAdapter(getContext(),articleCursor);
-        adapter.notifyDataSetChanged();
-        mRecyclerView.setAdapter(adapter);
-        Log.e("inside on finisloader","yoyo");
+        if (data.moveToFirst()) {
+            articleCursor = data;
+            //articleCursor.notify();
+            adapter = new ArticleAdapter(getContext(), articleCursor);
+            adapter.notifyDataSetChanged();
+            mRecyclerView.setAdapter(adapter);
+            emptyView.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        Log.e("inside on restart","yoyo");
+
     }
 }

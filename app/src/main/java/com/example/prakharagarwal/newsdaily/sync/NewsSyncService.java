@@ -14,7 +14,7 @@ public class NewsSyncService extends Service {
 
     @Override
     public void onCreate() {
-        Log.d("NewsSyncService", "onCreate - NewsSyncService");
+
         synchronized (sSyncAdapterLock) {
             if (sNewsSyncAdapter == null) {
                 sNewsSyncAdapter = new NewsSyncAdapter(getApplicationContext(), true);

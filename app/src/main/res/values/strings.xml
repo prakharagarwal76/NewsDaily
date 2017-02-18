@@ -6,10 +6,21 @@
     <string name="sync_account_type">news.example.com</string>
     <string name="content_authority">com.example.prakharagarwal.newsdaily.app</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="news_api_key">Your API Key</string>
+    <string name="openweather_apikey">Your API Key</string>
+
+    <string name="progressDialog_title">Loading</string>
+    <string name="progressDialog_message">Please wait while the news is being loaded...</string>
+    <string name="menu_main_item_title">Refresh</string>
+    <string name="empty_view_article">No Data. Select a Source</string>
+    <string name="full_story_link">Full Story</string>
+    <string name="location_weather_textView">Location</string>
+    <string name="pincode_not_found">Pincode not found, Please retry</string>
+    <string name="location_not_available">Location not available</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-<string name="detail_emptyText">SELECT AN ARTICLE TO SHOW DETAILS</string>
-<string name="empty_widget_list">No NEWS</string>
+    <string name="detail_emptyText">SELECT AN ARTICLE TO SHOW DETAILS</string>
+    <string name="weather_emptyText">No Data. Hit Reload</string>
+    <string name="empty_widget_list">No NEWS</string>
     <string name="title_widget">News Daily</string>
     <string name="sourceTextView">SOURCE</string>
     <string name="title_activity_detail">News</string>

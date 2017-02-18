@@ -13,10 +13,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     ArrayList<Fragment> fragments = new ArrayList<>();
     ArrayList<String> tabTitles = new ArrayList<>();
 
-    public void addFragment(Fragment fragment,String title){
+    public void addFragment(Fragment fragment, String title) {
         this.fragments.add(fragment);
         this.tabTitles.add(title);
     }
+
     public ViewPagerAdapter(FragmentManager fm) {
         super(fm);
     }

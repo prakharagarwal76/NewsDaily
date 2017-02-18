@@ -21,21 +21,22 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleA
     ArticleAdapterViewHolder holder;
 
 
-    public ArticleAdapter(Context context,Cursor cursor){
-        mContext=context;
-        mCursor=cursor;
+    public ArticleAdapter(Context context, Cursor cursor) {
+        mContext = context;
+        mCursor = cursor;
     }
-    public interface Callback{
-        void onItemSelected(Cursor cursor,int position,ArticleAdapterViewHolder holder);
+
+    public interface Callback {
+        void onItemSelected(Cursor cursor, int position, ArticleAdapterViewHolder holder);
     }
 
     @Override
     public ArticleAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if ( parent instanceof RecyclerView ) {
+        if (parent instanceof RecyclerView) {
 
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.carditem_article, parent, false);
             view.setFocusable(true);
-            holder=new ArticleAdapterViewHolder(view);
+            holder = new ArticleAdapterViewHolder(view);
             return holder;
         } else {
             throw new RuntimeException("Not bound to RecyclerView");
@@ -63,8 +64,8 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleA
 
         public ArticleAdapterViewHolder(View view) {
             super(view);
-            I1=(ImageView)view.findViewById(R.id.articleThumbnail);
-            t2=(TextView)view.findViewById(R.id.article_text);
+            I1 = (ImageView) view.findViewById(R.id.articleThumbnail);
+            t2 = (TextView) view.findViewById(R.id.article_text);
             view.setOnClickListener(this);
 
         }
@@ -74,7 +75,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleA
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
             mCursor.moveToPosition(adapterPosition);
-            ((Callback) mContext).onItemSelected(mCursor,adapterPosition,holder);
+            ((Callback) mContext).onItemSelected(mCursor, adapterPosition, holder);
 
 
         }
